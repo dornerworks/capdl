@@ -174,19 +174,32 @@ class ARM32Arch(Arch):
 
 
 class AARCH64Arch(Arch):
+    def __init__(self, pa_40bits=False):
+        self.pa_40bits = pa_40bits
+
     def capdl_name(self):
         return "aarch64"
 
     def levels(self):
-        return [
-            Level(2 ** 48, [], ObjectType.seL4_AARCH64_PGD, PGD, "pgd"),
-            Level(2 ** 39, [ObjectType.seL4_HugePageObject],
-                  ObjectType.seL4_AARCH64_PUD, PUD, "pud"),
-            Level(2 ** 30, [ObjectType.seL4_LargePageObject],
-                  ObjectType.seL4_PageDirectoryObject, PageDirectory, "pd"),
-            Level(2 ** 21, [ObjectType.seL4_SmallPageObject],
-                  ObjectType.seL4_PageTableObject, PageTable, "pt"),
-        ]
+        if self.pa_40bits:
+            return [
+                Level(2 ** 39, [ObjectType.seL4_HugePageObject],
+                      ObjectType.seL4_AARCH64_PUD, PUD, "pud"),
+                Level(2 ** 30, [ObjectType.seL4_LargePageObject],
+                      ObjectType.seL4_PageDirectoryObject, PageDirectory, "pd"),
+                Level(2 ** 21, [ObjectType.seL4_SmallPageObject],
+                      ObjectType.seL4_PageTableObject, PageTable, "pt"),
+            ]
+        else:
+            return [
+                Level(2 ** 48, [], ObjectType.seL4_AARCH64_PGD, PGD, "pgd"),
+                Level(2 ** 39, [ObjectType.seL4_HugePageObject],
+                      ObjectType.seL4_AARCH64_PUD, PUD, "pud"),
+                Level(2 ** 30, [ObjectType.seL4_LargePageObject],
+                      ObjectType.seL4_PageDirectoryObject, PageDirectory, "pd"),
+                Level(2 ** 21, [ObjectType.seL4_SmallPageObject],
+                      ObjectType.seL4_PageTableObject, PageTable, "pt"),
+            ]
 
     def word_size_bits(self):
         return 64
@@ -239,6 +252,7 @@ def normalised_map():
     return {
         'aarch32': 'aarch32',
         'aarch64': 'aarch64',
+        'aarch64-40pa': 'aarch64-40pa',
         'arm': 'aarch32',
         'arm11': 'aarch32',
         'arm_hyp': 'arm_hyp',
@@ -265,6 +279,7 @@ def lookup_architecture(arch):
     arch_map = {
         'aarch32': ARM32Arch(),
         'aarch64': AARCH64Arch(),
+        'aarch64-40pa': AARCH64Arch(pa_40bits=True),
         'arm_hyp': ARM32Arch(hyp=True),
         'ia32': IA32Arch(),
         'x86_64': X64Arch(),
