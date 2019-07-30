@@ -215,8 +215,12 @@ static CDL_Cap *get_cdl_frame_pud(CDL_ObjID root, uintptr_t vaddr, CDL_Model *sp
 
 static CDL_Cap *get_cdl_frame_pd(CDL_ObjID root, uintptr_t vaddr, CDL_Model *spec)
 {
+#if CDL_PT_NUM_LEVELS == 3
+    CDL_Object *cdl_pud = get_spec_object(spec, root);
+#else
     CDL_Cap *pud_cap = get_cdl_frame_pud(root, vaddr, spec);
     CDL_Object *cdl_pud = get_spec_object(spec, CDL_Cap_ObjID(pud_cap));
+#endif
     CDL_Cap *pd_cap = get_cap_at(cdl_pud, PUD_SLOT(vaddr));
     if (pd_cap == NULL) {
         ZF_LOGF("Could not find PD cap %s[%d]", CDL_Obj_Name(cdl_pud), (int)PUD_SLOT(vaddr));
@@ -1630,6 +1634,8 @@ static void init_level_1(CDL_Model *spec, CDL_ObjID level_0_obj, uintptr_t level
     }
 }
 
+#if CDL_PT_NUM_LEVELS == 4
+
 static void init_level_0(CDL_Model *spec, CDL_ObjID level_0_obj, uintptr_t level_0_base, CDL_ObjID level_0_obj_unused)
 {
     CDL_Object *obj = get_spec_object(spec, level_0_obj);
@@ -1645,6 +1651,8 @@ static void init_level_0(CDL_Model *spec, CDL_ObjID level_0_obj, uintptr_t level
         init_level_1(spec, level_0_obj, base, level_1_obj);
     }
 }
+
+#endif
 
 #else
 
