@@ -1149,8 +1149,10 @@ static void init_tcb(CDL_Model *spec, CDL_ObjID tcb)
 
     ZF_LOGF_IFERR(error, "");
 
+#ifndef CONFIG_KERNEL_MCS
 #if CONFIG_MAX_NUM_NODES > 1
     error = seL4_TCB_SetAffinity(sel4_tcb, affinity);
+#endif
 #endif
 
 #endif
